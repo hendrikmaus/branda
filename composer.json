@@ -11,7 +11,6 @@
   "minimum-stability": "stable",
   "require": {
     "php": ">=7.0",
-    "hmaus/reynaldo": "^0.1.0",
     "hmaus/spas-parser": "^0.1.0",
     "symfony/config": "^3.1",
     "symfony/console": "^3.1",

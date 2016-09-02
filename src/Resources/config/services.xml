@@ -5,7 +5,7 @@
 
     <services>
 
-        <service class="Symfony\Bridge\Monolog\Logger" id="hmaus.branda.logger"/>
+        <service class="Symfony\Component\Console\Logger\ConsoleLogger" id="hmaus.branda.logger"/>
 
         <service class="Hmaus\DrafterPhp\Drafter" id="hmaus.branda.drafterphp">
             <!-- the path is provided by command line option of drafter is to be used -->
