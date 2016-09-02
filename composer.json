@@ -1,0 +1,64 @@
+{
+  "name": "hmaus/branda",
+  "description": "API Description Mock Server",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Hendrik Maus",
+      "email": "aidentailor@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": ">=7.0",
+    "hmaus/reynaldo": "^0.1.0",
+    "hmaus/spas-parser": "^0.1.0",
+    "symfony/config": "^3.1",
+    "symfony/console": "^3.1",
+    "symfony/dependency-injection": "^3.1",
+    "symfony/event-dispatcher": "^3.1",
+    "symfony/filesystem": "^3.1",
+    "hmaus/spas-parser-apib": "^0.1.1",
+    "hmaus/drafter-php": "^4.0",
+    "symfony/http-foundation": "^3.1"
+  },
+  "require-dev": {
+    "codeclimate/php-test-reporter": "^0.3",
+    "phpunit/phpunit": "^5.0",
+    "symfony/var-dumper": "^3.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Hmaus\\Branda\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Hmaus\\Branda\\Tests\\": "tests"
+    }
+  },
+  "bin": [
+    "bin/branda"
+  ],
+  "config": {
+    "sort-packages": true
+  },
+  "scripts": {
+    "clean": "rm -rf vendor/ composer.lock; exit 0",
+    "test": "vendor/bin/phpunit",
+    "quicktest": "vendor/bin/phpunit --no-coverage",
+    "install-drafter": [
+      "if ! [[ -d ext/drafter ]]; then echo \"### Installing drafter to ./ext; drafter bin to ./vendor/bin/ ###\"; fi",
+      "if ! [[ -d ext/drafter ]]; then git clone --branch v3.1.0 --recursive https://github.com/apiaryio/drafter.git ext/drafter; fi",
+      "if ! [[ -d vendor/bin ]]; then mkdir -p vendor/bin; fi",
+      "if ! [[ -f vendor/bin/drafter ]]; then cd ext/drafter && ./configure && make drafter; fi",
+      "if ! [[ -f vendor/bin/drafter ]]; then cd vendor/bin && ln -s ../../ext/drafter/bin/drafter drafter; fi"
+    ],
+    "post-install-cmd": [
+      "@install-drafter"
+    ],
+    "post-update-cmd": [
+      "@install-drafter"
+    ]
+  }
+}

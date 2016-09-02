@@ -1,0 +1,1 @@
+Hooks may be a way for branda to react to advanced scenarios without writing a lot of code
