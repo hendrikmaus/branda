@@ -119,6 +119,21 @@ EOF
          * @param Response $response
          */
         $app = function ($request, $response) use ($parsedRequests, $io) {
+
+            $queryString = '';
+            foreach ($request->getQuery() as $key => $value) {
+                $queryString .= sprintf('&%s=%s', $key, $value);
+            }
+
+            $io->write('[request] ');
+            $io->write(sprintf('<info>%s</info> ', $request->getMethod()));
+            if (!$queryString) {
+                $io->write(sprintf('<comment>%s</comment> ', $request->getPath()));
+            } else {
+                $io->write(sprintf('<comment>%s?%s</comment> ', $request->getPath(), substr($queryString, 1)));
+            }
+            $io->newLine();
+
             /** @var ParsedRequest $match */
             $match = $this->match($request, $parsedRequests);
 
@@ -131,9 +146,16 @@ EOF
                 $match->getResponse()->getBody() ?? ''
             );
 
-            $io->writeln(
-                sprintf('%s %s', $request->getMethod(), $match->getHref())
-            );
+            /*
+             * todo this will also look like it matched a mismatch
+             *      [request] PUT /?hh=
+             *      [matched] PUT  No match found
+             */
+            $io->write('<info>[matched]</info> ');
+            $io->write(sprintf('<info>%s</info> ', $match->getMethod()));
+            $io->write(sprintf('<comment>%s</comment> ', $match->getHref()));
+            $io->write(sprintf('<fg=blue>%s</>', $this->getLastNamePart($match->getName())));
+            $io->newLine(2);
         };
 
         $loop = Factory::create();
@@ -185,13 +207,13 @@ EOF
             return $parsedRequest;
         }
 
-        return $this->mismatch();
+        return $this->mismatch($request);
     }
 
     /**
      * @return SpasRequest
      */
-    private function mismatch()
+    private function mismatch(Request $httpRequest)
     {
         $response = new SpasResponse();
         $response->setStatusCode(404);
@@ -200,6 +222,8 @@ EOF
 
         $request = new SpasRequest();
         $request->setResponse($response);
+        $request->setMethod($httpRequest->getMethod());
+        $request->setName('No match found');
 
         return $request;
     }
