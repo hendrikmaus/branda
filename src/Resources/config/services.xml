@@ -14,5 +14,7 @@
 
         <service class="Symfony\Component\Filesystem\Filesystem" id="hmaus.branda.filesystem"/>
         <service class="Symfony\Component\EventDispatcher\EventDispatcher" id="hmaus.branda.event_dispatcher"/>
+
+        <service class="Hmaus\Branda\Matching\MatchingService" id="hmaus.branda.matching.matching_service"/>
     </services>
 </container>

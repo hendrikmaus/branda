@@ -30,10 +30,8 @@ require BRANDA_COMPOSER_INSTALL;
 define('APP_NAME', 'branda');
 define('APP_VERSION', '0.1.0');
 
-// todo look at events for this purpose: http://symfony.com/doc/current/components/console/events.html
 $output = new Symfony\Component\Console\Output\ConsoleOutput();
 $output->writeln(sprintf('Branda %s by Hendrik Maus and contributors.', APP_VERSION));
-$output->writeln('');
 
 $application = new Hmaus\Branda\BrandaApplication(APP_NAME, APP_VERSION);
 $application->run(null, $output);
