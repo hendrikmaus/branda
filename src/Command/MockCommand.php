@@ -68,6 +68,9 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
+
+        $io->newLine();
+
         $type = $input->getOption('type');
 
         if ($type !== 'apib') {
@@ -84,14 +87,16 @@ EOF
             );
         }
 
+        $io->write('[info] Parsing document ... ');
         $drafter = new Drafter('vendor/bin/drafter');
-
         $rawParseResult = $drafter
             ->input($inputPath)
             ->format('json')
             ->type('refract')
             ->run();
+        $io->writeln('done');
 
+        $io->writeln('[info] Adding routes:');
         $requestProvider = new ApibParsedRequestsProvider();
         $parsedRequests = $requestProvider->parse(
             json_decode($rawParseResult, true)
@@ -100,23 +105,11 @@ EOF
         $address = $input->getArgument('address');
         $port = $input->getOption('port');
 
-        $io->block('branda is booting ...', null, 'fg=black;bg=green', ' ', true);
-
         foreach ($parsedRequests as $request) {
-            if ($request->getMethod() === 'GET') {
-                $contentType = $request->getResponse()->getHeaders()->get('content-type');
-            } else {
-                $contentType = $request->getHeaders()->get('content-type');
-            }
-
-            $io->write(
-                sprintf(
-                    '%s %s (%s)',
-                    $request->getMethod(),
-                    $request->getHref(),
-                    $contentType
-                )
-            );
+            $io->write('[add route] ');
+            $io->write(sprintf('<info>%s</info> ', $request->getMethod()));
+            $io->write(sprintf('<comment>%s</comment> ', $request->getHref()));
+            $io->write(sprintf('<fg=blue>%s</>', $this->getLastNamePart($request->getName())));
             $io->newLine();
         }
         $io->newLine();
@@ -156,6 +149,21 @@ EOF
         $loop->run();
 
         return 0;
+    }
+
+    /**
+     * @param string $name
+     * @param string $delimiter
+     * @return string
+     */
+    private function getLastNamePart(string $name, $delimiter = ' > ')
+    {
+        if (!$name) {
+            return '';
+        }
+
+        $parts = explode($delimiter, $name);
+        return array_pop($parts);
     }
 
     /**
