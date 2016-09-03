@@ -59,7 +59,7 @@ class Href implements Matcher
         $merged = sprintf(
             '%s?%s',
             $path,
-            $queryString
+            substr($queryString, 1)
         );
 
         return $merged;
