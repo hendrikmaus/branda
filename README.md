@@ -25,7 +25,7 @@ Since there currently is a dependency on drafter, you have to add this to your `
 ]
 ```
 
-Now you can require brenda itself:
+Now you can require branda itself:
 ```bash
 composer require hmaus/branda
 ```
