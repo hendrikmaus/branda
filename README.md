@@ -1,6 +1,8 @@
 # Branda
 An API description mock server.
 
+[![Build Status](https://travis-ci.org/hendrikmaus/branda.svg?branch=master)](https://travis-ci.org/hendrikmaus/branda)
+
 ## Note
 Branda is currently **experimental**!  
 It only supports API Blueprint as we speak.
