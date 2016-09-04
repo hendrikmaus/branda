@@ -21,14 +21,28 @@ class MockServer
         array $parsedRequests,
         MatchingService $matcher
     ) {
-        $this->logRoutes($io, $parsedRequests);
+        $this->logRoutes($parsedRequests, $io);
 
         /**
          * @param Request $request
          * @param Response $response
          */
         $app = function ($request, $response) use ($parsedRequests, $io, $matcher) {
-            $this->route($request, $response, $io, $this, $matcher, $parsedRequests);
+            $this->logRequest($request, $io);
+
+            /** @var ParsedRequest $match */
+            $match = $this->match($matcher, $request, $parsedRequests);
+
+            $response->writeHead(
+                $match->getResponse()->getStatusCode(),
+                $match->getResponse()->getHeaders()->all()
+            );
+
+            $response->end(
+                $match->getResponse()->getBody() ?? ''
+            );
+
+            $this->logMatch($match, $io);
         };
 
         $loop = Factory::create();
@@ -43,61 +57,6 @@ class MockServer
         $socket->listen($port, $address);
         $loop->run();
     }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @param SymfonyStyle $io
-     * @param MockServer $self
-     * @param MatchingService $matcher
-     * @param ParsedRequest[] $parsedRequests
-     */
-    private function route(
-        Request $request,
-        Response $response,
-        SymfonyStyle $io,
-        MockServer $self,
-        MatchingService $matcher,
-        array $parsedRequests
-    ) {
-        $queryString = '';
-        foreach ($request->getQuery() as $key => $value) {
-            $queryString .= sprintf('&%s=%s', $key, $value);
-        }
-
-        $io->write('[request] ');
-        $io->write(sprintf('<info>%s</info> ', $request->getMethod()));
-        if (!$queryString) {
-            $io->write(sprintf('<comment>%s</comment> ', $request->getPath()));
-        } else {
-            $io->write(sprintf('<comment>%s?%s</comment> ', $request->getPath(), substr($queryString, 1)));
-        }
-        $io->newLine();
-
-        /** @var ParsedRequest $match */
-        $match = $self->match($matcher, $request, $parsedRequests);
-
-        $response->writeHead(
-            $match->getResponse()->getStatusCode(),
-            $match->getResponse()->getHeaders()->all()
-        );
-
-        $response->end(
-            $match->getResponse()->getBody() ?? ''
-        );
-
-        /*
-         * todo this will also look like it matched a mismatch
-         *      [request] PUT /?hh=
-         *      [matched] PUT  No match found
-         */
-        $io->write('<info>[matched]</info> ');
-        $io->write(sprintf('<info>%s</info> ', $match->getMethod()));
-        $io->write(sprintf('<comment>%s</comment> ', $match->getHref()));
-        $io->write(sprintf('<fg=blue>%s</>', $self->getLastNamePart($match->getName())));
-        $io->newLine(2);
-    }
-
 
     /**
      * @param string $name
@@ -156,10 +115,10 @@ class MockServer
     }
 
     /**
+     * @param ParsedRequest[] $parsedRequests
      * @param SymfonyStyle $io
-     * @param array $parsedRequests
      */
-    private function logRoutes(SymfonyStyle $io, array $parsedRequests)
+    private function logRoutes(array $parsedRequests, SymfonyStyle $io)
     {
         foreach ($parsedRequests as $request) {
             $io->write('[add route] ');
@@ -167,6 +126,45 @@ class MockServer
             $io->write(sprintf('<comment>%s</comment> ', $request->getHref()));
             $io->write(sprintf('<fg=blue>%s</>', $this->getLastNamePart($request->getName())));
             $io->newLine();
+        }
+        $io->newLine();
+    }
+
+    /**
+     * @param ParsedRequest $match
+     * @param SymfonyStyle $io
+     */
+    private function logMatch(ParsedRequest $match, SymfonyStyle $io)
+    {
+        /*
+         * todo this will also look like it matched a mismatch
+         *      [request] PUT /?hh=
+         *      [matched] PUT  No match found
+         */
+        $io->write('<info>[matched]</info> ');
+        $io->write(sprintf('<info>%s</info> ', $match->getMethod()));
+        $io->write(sprintf('<comment>%s</comment> ', $match->getHref()));
+        $io->write(sprintf('<fg=blue>%s</>', $this->getLastNamePart($match->getName())));
+        $io->newLine(2);
+    }
+
+    /**
+     * @param Request $request
+     * @param SymfonyStyle $io
+     */
+    private function logRequest(Request $request, SymfonyStyle $io)
+    {
+        $queryString = '';
+        foreach ($request->getQuery() as $key => $value) {
+            $queryString .= sprintf('&%s=%s', $key, $value);
+        }
+
+        $io->write('[request] ');
+        $io->write(sprintf('<info>%s</info> ', $request->getMethod()));
+        if (!$queryString) {
+            $io->write(sprintf('<comment>%s</comment> ', $request->getPath()));
+        } else {
+            $io->write(sprintf('<comment>%s?%s</comment> ', $request->getPath(), substr($queryString, 1)));
         }
         $io->newLine();
     }
