@@ -27,7 +27,7 @@ class MatcherCompilerPass implements CompilerPassInterface
         $definition = $container->findDefinition($matcherServiceId);
         $taggedServices = $container->findTaggedServiceIds('hmaus.branda.tag.matcher');
 
-        foreach ($taggedServices as $id => $tags) {
+        foreach (array_keys($taggedServices) as $id) {
             $definition->addMethodCall('addMatcher', [new Reference($id)]);
         }
     }
