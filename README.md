@@ -1,7 +1,10 @@
 # Branda
 An API description mock server.
 
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg)](https://php.net/)
 [![Build Status](https://travis-ci.org/hendrikmaus/branda.svg?branch=master)](https://travis-ci.org/hendrikmaus/branda)
+[![codecov](https://codecov.io/gh/hendrikmaus/branda/branch/master/graph/badge.svg)](https://codecov.io/gh/hendrikmaus/branda)
+[![Code Climate](https://codeclimate.com/github/hendrikmaus/branda/badges/gpa.svg)](https://codeclimate.com/github/hendrikmaus/branda)
 
 ## Note
 Branda is currently **experimental**!  

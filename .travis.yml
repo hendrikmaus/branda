@@ -24,3 +24,11 @@ before_script:
   - git config --global user.email travis@example.com
 
 script: vendor/bin/phpunit
+
+after_script:
+  - vendor/bin/test-reporter
+  - bash <(curl -s https://codecov.io/bash)
+
+addons:
+  code_climate:
+    repo_token: 708bd95f-b367-49cd-9b39-04916772144d
