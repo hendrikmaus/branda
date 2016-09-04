@@ -8,13 +8,21 @@
         <service class="Symfony\Component\Console\Logger\ConsoleLogger" id="hmaus.branda.logger"/>
 
         <service class="Hmaus\DrafterPhp\Drafter" id="hmaus.branda.drafterphp">
-            <!-- the path is provided by command line option of drafter is to be used -->
-            <argument></argument>
+            <argument type="string">vendor/bin/drafter</argument>
         </service>
 
         <service class="Symfony\Component\Filesystem\Filesystem" id="hmaus.branda.filesystem"/>
         <service class="Symfony\Component\EventDispatcher\EventDispatcher" id="hmaus.branda.event_dispatcher"/>
 
         <service class="Hmaus\Branda\Matching\MatchingService" id="hmaus.branda.matching.matching_service"/>
+
+        <service class="Hmaus\Spas\Parser\Apib\ApibParsedRequestsProvider" id="hmaus.spas.parser.apib.apib_parsed_requests_provider"/>
+
+        <service class="Hmaus\Branda\ApiDescription\ApiBlueprint" id="hmaus.branda.api_description.apib">
+            <argument type="service" id="hmaus.branda.drafterphp"/>
+            <argument type="service" id="hmaus.spas.parser.apib.apib_parsed_requests_provider"/>
+        </service>
+
+        <service class="Hmaus\Branda\Server\MockServer" id="hmaus.branda.server.mock_server"/>
     </services>
 </container>

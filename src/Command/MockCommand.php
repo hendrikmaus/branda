@@ -2,15 +2,6 @@
 
 namespace Hmaus\Branda\Command;
 
-use Hmaus\DrafterPhp\Drafter;
-use Hmaus\Spas\Parser\Apib\ApibParsedRequestsProvider;
-use Hmaus\SpasParser\ParsedRequest;
-use Hmaus\SpasParser\SpasRequest;
-use Hmaus\SpasParser\SpasResponse;
-use React\EventLoop\Factory;
-use React\Http\Request;
-use React\Http\Response;
-use React\Socket\Server;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Input\InputArgument;
@@ -41,13 +32,7 @@ class MockCommand extends Command
                 [
                     new InputArgument('address', InputArgument::OPTIONAL, 'Address', '127.0.0.1'),
                     new InputOption('port', 'p', InputOption::VALUE_REQUIRED, 'Address port number', '8000'),
-                    new InputOption(
-                        'type',
-                        't',
-                        InputOption::VALUE_REQUIRED,
-                        'API description type, e.g. `apib`',
-                        'apib'
-                    ),
+                    new InputOption('type', 't', InputOption::VALUE_REQUIRED, 'Description type', 'apib'),
                     new InputOption('file', 'f', InputOption::VALUE_REQUIRED, 'Api to mock'),
                 ]
             )
@@ -55,12 +40,18 @@ class MockCommand extends Command
             ->setDescription('Mock given API')
             ->setHelp(
                 <<<'EOF'
-<info>%command.name%</info> runs a React PHP Server.
+Branda's <info>%command.name%</info> runs a React PHP Server;
+it responds with your documented example payloads and headers.
 
-It will try to match your request to a transaction defined in the given
-API description.
+<comment>Quick Start:</comment>
+    <info>bin/branda mock --file "your-service.apib"</info>
 
-It will respond with all defined headers and the defined payload, if any.
+<comment>Important Note:</comment>
+As of now, branda comes bundled with a parser for <info>API Blueprint</info>; hence
+the only supported value for the <info>type</info> option is <info>"apib"</info>.
+
+To implement another parser, please refer to the respective guide on:
+<fg=blue>https://github.com/hendrikmaus/branda</>
 EOF
             );
     }
@@ -68,9 +59,32 @@ EOF
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-
         $io->newLine();
 
+        $type = $this->getType($input);
+        $inputPath = $this->getInputPth($input);
+
+        $parser = $this->container->get(
+            sprintf('hmaus.branda.api_description.%s', $type)
+        );
+
+        $this->container->get('hmaus.branda.server.mock_server')->serve(
+            $input->getArgument('address'),
+            $input->getOption('port'),
+            $io,
+            $parser->parse($inputPath),
+            $this->container->get('hmaus.branda.matching.matching_service')
+        );
+
+        return 0;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return mixed
+     */
+    private function getType(InputInterface $input)
+    {
         $type = $input->getOption('type');
 
         if ($type !== 'apib') {
@@ -79,6 +93,21 @@ EOF
             );
         }
 
+        if (!$this->container->has(sprintf('hmaus.branda.api_description.%s', $type))) {
+            throw new InvalidOptionException(
+                sprintf('Given input type "%s" does not meet any parser implementation', $type)
+            );
+        }
+
+        return $type;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return mixed
+     */
+    private function getInputPth(InputInterface $input)
+    {
         $inputPath = $input->getOption('file');
 
         if (!$this->container->get('hmaus.branda.filesystem')->exists($inputPath)) {
@@ -87,144 +116,6 @@ EOF
             );
         }
 
-        $io->write('[info] Parsing document ... ');
-        $drafter = new Drafter('vendor/bin/drafter');
-        $rawParseResult = $drafter
-            ->input($inputPath)
-            ->format('json')
-            ->type('refract')
-            ->run();
-        $io->writeln('done');
-
-        $io->writeln('[info] Adding routes:');
-        $requestProvider = new ApibParsedRequestsProvider();
-        $parsedRequests = $requestProvider->parse(
-            json_decode($rawParseResult, true)
-        );
-
-        $address = $input->getArgument('address');
-        $port = $input->getOption('port');
-
-        foreach ($parsedRequests as $request) {
-            $io->write('[add route] ');
-            $io->write(sprintf('<info>%s</info> ', $request->getMethod()));
-            $io->write(sprintf('<comment>%s</comment> ', $request->getHref()));
-            $io->write(sprintf('<fg=blue>%s</>', $this->getLastNamePart($request->getName())));
-            $io->newLine();
-        }
-        $io->newLine();
-
-        /**
-         * @param Request $request
-         * @param Response $response
-         */
-        $app = function ($request, $response) use ($parsedRequests, $io) {
-
-            $queryString = '';
-            foreach ($request->getQuery() as $key => $value) {
-                $queryString .= sprintf('&%s=%s', $key, $value);
-            }
-
-            $io->write('[request] ');
-            $io->write(sprintf('<info>%s</info> ', $request->getMethod()));
-            if (!$queryString) {
-                $io->write(sprintf('<comment>%s</comment> ', $request->getPath()));
-            } else {
-                $io->write(sprintf('<comment>%s?%s</comment> ', $request->getPath(), substr($queryString, 1)));
-            }
-            $io->newLine();
-
-            /** @var ParsedRequest $match */
-            $match = $this->match($request, $parsedRequests);
-
-            $response->writeHead(
-                $match->getResponse()->getStatusCode(),
-                $match->getResponse()->getHeaders()->all()
-            );
-
-            $response->end(
-                $match->getResponse()->getBody() ?? ''
-            );
-
-            /*
-             * todo this will also look like it matched a mismatch
-             *      [request] PUT /?hh=
-             *      [matched] PUT  No match found
-             */
-            $io->write('<info>[matched]</info> ');
-            $io->write(sprintf('<info>%s</info> ', $match->getMethod()));
-            $io->write(sprintf('<comment>%s</comment> ', $match->getHref()));
-            $io->write(sprintf('<fg=blue>%s</>', $this->getLastNamePart($match->getName())));
-            $io->newLine(2);
-        };
-
-        $loop = Factory::create();
-        $socket = new Server($loop);
-        $http = new \React\Http\Server($socket, $loop);
-
-        $http->on('request', $app);
-
-        $io->success(sprintf('Mock server running on http://%s:%d', $address, $port));
-        $io->comment('Quit the server with CONTROL-C.');
-
-        $socket->listen($port, $address);
-        $loop->run();
-
-        return 0;
-    }
-
-    /**
-     * @param string $name
-     * @param string $delimiter
-     * @return string
-     */
-    private function getLastNamePart(string $name, $delimiter = ' > ')
-    {
-        if (!$name) {
-            return '';
-        }
-
-        $parts = explode($delimiter, $name);
-        return array_pop($parts);
-    }
-
-    /**
-     * @param Request $request
-     * @param ParsedRequest[] $parsedRequests
-     * @return ParsedRequest
-     */
-    private function match(Request $request, array $parsedRequests)
-    {
-        $matchingService = $this->container->get('hmaus.branda.matching.matching_service');
-
-        foreach ($parsedRequests as $parsedRequest) {
-            $match = $matchingService->match($request, $parsedRequest);
-
-            if (!$match) {
-                continue;
-            }
-
-            return $parsedRequest;
-        }
-
-        return $this->mismatch($request);
-    }
-
-    /**
-     * @return SpasRequest
-     */
-    private function mismatch(Request $httpRequest)
-    {
-        $response = new SpasResponse();
-        $response->setStatusCode(404);
-        $response->setBody("404 - No matching resource in API description\n");
-        $response->getHeaders()->set('Content-Type', 'text/plain');
-
-        $request = new SpasRequest();
-        $request->setResponse($response);
-        $request->setMethod($httpRequest->getMethod());
-        $request->setName('No match found');
-
-        return $request;
+        return $inputPath;
     }
 }
