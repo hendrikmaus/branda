@@ -2,6 +2,7 @@
 
 namespace Hmaus\Branda\Command;
 
+use Hmaus\Branda\Server\ReactProvider;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Input\InputArgument;
@@ -76,7 +77,8 @@ EOF
             $input->getOption('port'),
             $io,
             $parser->parse($inputPath),
-            $this->container->get('hmaus.branda.matching.matching_service')
+            $this->container->get('hmaus.branda.matching.matching_service'),
+            $this->container->get('hmaus.branda.server.react_provider')
         );
 
         return 0;

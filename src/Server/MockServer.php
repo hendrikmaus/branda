@@ -19,7 +19,8 @@ class MockServer
         int $port,
         SymfonyStyle $io,
         array $parsedRequests,
-        MatchingService $matcher
+        MatchingService $matcher,
+        ReactProvider $reactProvider
     ) {
         $this->logRoutes($parsedRequests, $io);
 
@@ -45,9 +46,9 @@ class MockServer
             $this->logMatch($match, $io);
         };
 
-        $loop = Factory::create();
-        $socket = new Server($loop);
-        $http = new \React\Http\Server($socket, $loop);
+        $loop = $reactProvider->getLoop();
+        $socket = $reactProvider->getSocketServer($loop);
+        $http = $reactProvider->getHttpServer($socket);
 
         $http->on('request', $app);
 

@@ -24,5 +24,7 @@
         </service>
 
         <service class="Hmaus\Branda\Server\MockServer" id="hmaus.branda.server.mock_server"/>
+
+        <service class="Hmaus\Branda\Server\ReactProvider" id="hmaus.branda.server.react_provider"/>
     </services>
 </container>
