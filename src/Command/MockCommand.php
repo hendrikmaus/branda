@@ -62,9 +62,6 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $io = new SymfonyStyle($input, $output);
-        $io->newLine();
-
         $type = $this->getType($input);
         $inputPath = $this->getInputPth($input);
 
@@ -75,10 +72,7 @@ EOF
         $this->container->get('hmaus.branda.server.mock_server')->serve(
             $input->getArgument('address'),
             $input->getOption('port'),
-            $io,
-            $parser->parse($inputPath),
-            $this->container->get('hmaus.branda.matching.matching_service'),
-            $this->container->get('hmaus.branda.server.react_provider')
+            $parser->parse($inputPath)
         );
 
         return 0;

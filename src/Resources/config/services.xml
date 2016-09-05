@@ -6,6 +6,7 @@
     <services>
 
         <service class="Symfony\Component\Console\Logger\ConsoleLogger" id="hmaus.branda.logger"/>
+        <service class="Symfony\Component\Console\Style\SymfonyStyle" id="hmaus.branda.io"/>
 
         <service class="Hmaus\DrafterPhp\Drafter" id="hmaus.branda.drafterphp">
             <argument type="string">vendor/bin/drafter</argument>
@@ -23,7 +24,11 @@
             <argument type="service" id="hmaus.spas.parser.apib.apib_parsed_requests_provider"/>
         </service>
 
-        <service class="Hmaus\Branda\Server\MockServer" id="hmaus.branda.server.mock_server"/>
+        <service class="Hmaus\Branda\Server\MockServer" id="hmaus.branda.server.mock_server">
+            <argument type="service" id="hmaus.branda.io"/>
+            <argument type="service" id="hmaus.branda.matching.matching_service"/>
+            <argument type="service" id="hmaus.branda.server.react_provider"/>
+        </service>
 
         <service class="Hmaus\Branda\Server\ReactProvider" id="hmaus.branda.server.react_provider"/>
     </services>

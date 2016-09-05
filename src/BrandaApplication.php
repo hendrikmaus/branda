@@ -9,9 +9,12 @@ use Symfony\Bridge\Monolog\Handler\ConsoleHandler;
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
@@ -51,13 +54,25 @@ class BrandaApplication extends Application
 
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
+        if (null === $input) {
+            $input = new ArgvInput();
+        }
+
+        if (null === $output) {
+            $output = new ConsoleOutput();
+        }
+
         $logger = new ConsoleLogger(
-            $output, [
-            LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
-            LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
-        ]
+            $output,
+            [
+                LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
+                LogLevel::INFO => OutputInterface::VERBOSITY_NORMAL,
+            ]
         );
         $this->container->set('hmaus.branda.logger', $logger);
+
+        $io = new SymfonyStyle($input, $output);
+        $this->container->set('hmaus.branda.io', $io);
 
         // make sure to compile the container so compiler passes run
         $this->container->compile();

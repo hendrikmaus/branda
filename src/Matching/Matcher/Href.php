@@ -27,21 +27,17 @@ class Href implements Matcher
 
         $uriTemplate = new UriTemplate();
 
-        $params = $uriTemplate->extract(
+        $params = @$uriTemplate->extract(
             $toPath,
             $fromPath
         );
-
-        if ($params === null) {
-            return false;
-        }
 
         if (count($params) === 0) {
             return false;
         }
 
         foreach ($params as $paramValue) {
-            if ($paramValue === null) {
+            if ($paramValue === null || $paramValue === '') {
                 return false;
             }
         }
