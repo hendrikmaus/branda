@@ -25,17 +25,39 @@ class Href implements Matcher
             return true;
         }
 
-        $params = (new UriTemplate())->extract(
+        $uriTemplate = new UriTemplate();
+
+        $params = $uriTemplate->extract(
             $toPath,
-            $fromPath,
-            true
+            $fromPath
         );
 
         if ($params === null) {
             return false;
         }
 
+        if (count($params) === 0) {
+            return false;
+        }
+
+        foreach ($params as $paramValue) {
+            if ($paramValue === null) {
+                return false;
+            }
+        }
+
+        if (!$this->hasQuery($toPath)) {
+            if ($uriTemplate->expand($toPath, $params) !== $fromPath) {
+                return false;
+            }
+        }
+
         return true;
+    }
+
+    private function hasQuery($uriTemplate)
+    {
+        return strpos($uriTemplate, '?') !== false;
     }
 
     private function mergePathAndQuery(Request $request)

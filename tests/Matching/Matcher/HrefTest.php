@@ -25,6 +25,7 @@ class HrefTest extends \PHPUnit_Framework_TestCase
             ['/foo', ['bar' => '12'], '/foo{?alice}', false],
             ['/foo', ['bar' => '12', 'alice' => 'bob'], '/foo{?bar,alice}', true],
             ['/foo', ['bar' => '12'], '/foo{?bar,alice}', false],
+            ['/foo', ['bar' => '12', 'foo' => '42'], '/foo{?bar}', true],
         ];
     }
 
