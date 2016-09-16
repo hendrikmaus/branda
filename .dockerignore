@@ -1,0 +1,7 @@
+ext*
+build*
+vendor*
+tests*
+.travis.yml
+phpunit.xml.dist
+phpunit.xml
