@@ -60,19 +60,18 @@ The recommended way to install branda is by using composer.
 Since there currently is a dependency on drafter, you have to add this to your `scripts` section in composer.json:
 
 ```json
-"install-drafter": [
-  "if ! [[ -d ext/drafter ]]; then echo \"### Installing drafter to ./ext; drafter bin to ./vendor/bin/ ###\"; fi",
-  "if ! [[ -d ext/drafter ]]; then git clone --branch v3.1.1 --recursive https://github.com/apiaryio/drafter.git ext/drafter; fi",
-  "if ! [[ -d vendor/bin ]]; then mkdir -p vendor/bin; fi",
-  "if ! [[ -f vendor/bin/drafter ]]; then cd ext/drafter && ./configure && make drafter; fi",
-  "if ! [[ -f vendor/bin/drafter ]]; then cd vendor/bin && ln -s ../../ext/drafter/bin/drafter drafter; fi"
-],
-"post-install-cmd": [
-  "@install-drafter"
-],
-"post-update-cmd": [
-  "@install-drafter"
-]
+  "extra": {
+    "drafter-installer-tag": "v3.1.3"
+  },
+  "scripts": {
+    "install-drafter": "Hmaus\\Drafter\\Installer::installDrafter",
+    "post-install-cmd": [
+      "@install-drafter"
+    ],
+    "post-update-cmd": [
+      "@install-drafter"
+    ]
+  }
 ```
 
 Now you can require branda itself:
