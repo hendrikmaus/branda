@@ -3,9 +3,9 @@
 namespace Hmaus\Branda\Server;
 
 use Hmaus\Branda\Matching\MatchingService;
-use Hmaus\SpasParser\ParsedRequest;
-use Hmaus\SpasParser\SpasRequest;
-use Hmaus\SpasParser\SpasResponse;
+use Hmaus\Spas\Parser\ParsedRequest;
+use Hmaus\Spas\Parser\SpasRequest;
+use Hmaus\Spas\Parser\SpasResponse;
 use React\Http\Request;
 use React\Http\Response;
 use Symfony\Component\Console\Style\SymfonyStyle;

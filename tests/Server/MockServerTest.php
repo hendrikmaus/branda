@@ -2,13 +2,12 @@
 
 namespace Hmaus\Branda\Tests\Server;
 
-use Evenement\EventEmitter;
 use Hmaus\Branda\Matching\MatchingService;
 use Hmaus\Branda\Server\MockServer;
 use Hmaus\Branda\Server\ReactProvider;
-use Hmaus\SpasParser\ParsedRequest;
-use Hmaus\SpasParser\SpasRequest;
-use Hmaus\SpasParser\SpasResponse;
+use Hmaus\Spas\Parser\ParsedRequest;
+use Hmaus\Spas\Parser\SpasRequest;
+use Hmaus\Spas\Parser\SpasResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use React\EventLoop\LoopInterface;

@@ -2,5 +2,3 @@ build/
 vendor/
 composer.lock
 phpunit.xml
-ext/
-sandbox

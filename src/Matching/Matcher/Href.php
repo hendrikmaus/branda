@@ -3,7 +3,7 @@
 namespace Hmaus\Branda\Matching\Matcher;
 
 use Hmaus\Branda\Matching\Matcher;
-use Hmaus\SpasParser\ParsedRequest;
+use Hmaus\Spas\Parser\ParsedRequest;
 use React\Http\Request;
 use Rize\UriTemplate\UriTemplate;
 

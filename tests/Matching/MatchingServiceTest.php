@@ -4,7 +4,7 @@ namespace Hmaus\Branda\Tests\Matching;
 
 use Hmaus\Branda\Matching\Matcher\HttpMethod;
 use Hmaus\Branda\Matching\MatchingService;
-use Hmaus\SpasParser\SpasRequest;
+use Hmaus\Spas\Parser\SpasRequest;
 use Prophecy\Argument;
 use React\Http\Request;
 

@@ -3,8 +3,8 @@
 namespace Hmaus\Branda\ApiDescription;
 
 use Hmaus\DrafterPhp\DrafterInterface;
-use Hmaus\SpasParser\ParsedRequest;
-use Hmaus\SpasParser\Parser;
+use Hmaus\Spas\Parser\ParsedRequest;
+use Hmaus\Spas\Parser\Parser;
 
 class ApiBlueprint implements DescriptionReader
 {

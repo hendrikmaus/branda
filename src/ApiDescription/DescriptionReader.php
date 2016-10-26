@@ -2,7 +2,7 @@
 
 namespace Hmaus\Branda\ApiDescription;
 
-use Hmaus\SpasParser\ParsedRequest;
+use Hmaus\Spas\Parser\ParsedRequest;
 
 interface DescriptionReader
 {

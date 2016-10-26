@@ -12,8 +12,9 @@
   "require": {
     "php": ">=7.0",
     "hmaus/drafter-php": "^4.0",
-    "hmaus/spas-parser": "^0.1.0",
-    "hmaus/spas-parser-apib": "^0.1.1",
+    "hmaus/drafter-installer": "^1.0",
+    "hmaus/spas-parser": "^1.0.0",
+    "hmaus/spas-parser-apib": "^1.0.0",
     "psr/log": "^1.0",
     "react/http": "^0.4.1",
     "rize/uri-template": "^0.3.0",
@@ -45,17 +46,14 @@
   "config": {
     "sort-packages": true
   },
+  "extra": {
+    "drafter-installer-tag": "v3.1.3"
+  },
   "scripts": {
     "clean": "rm -rf vendor/ composer.lock; exit 0",
     "test": "vendor/bin/phpunit",
     "quicktest": "vendor/bin/phpunit --no-coverage",
-    "install-drafter": [
-      "if ! [[ -d ext/drafter ]]; then echo \"### Installing drafter to ./ext; drafter bin to ./vendor/bin/ ###\"; fi",
-      "if ! [[ -d ext/drafter ]]; then git clone --branch v3.1.1 --recursive https://github.com/apiaryio/drafter.git ext/drafter; fi",
-      "if ! [[ -d vendor/bin ]]; then mkdir -p vendor/bin; fi",
-      "if ! [[ -f vendor/bin/drafter ]]; then cd ext/drafter && ./configure && make drafter; fi",
-      "if ! [[ -f vendor/bin/drafter ]]; then cd vendor/bin && ln -s ../../ext/drafter/bin/drafter drafter; fi"
-    ],
+    "install-drafter": "Hmaus\\Drafter\\Installer::installDrafter",
     "post-install-cmd": [
       "@install-drafter"
     ],

@@ -2,7 +2,7 @@
 
 namespace Hmaus\Branda\Matching;
 
-use Hmaus\SpasParser\ParsedRequest;
+use Hmaus\Spas\Parser\ParsedRequest;
 use React\Http\Request;
 
 class MatchingService

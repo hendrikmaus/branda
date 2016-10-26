@@ -3,7 +3,7 @@
 namespace Hmaus\Branda\Tests\Matching\Matcher;
 
 use Hmaus\Branda\Matching\Matcher\HttpHeaders;
-use Hmaus\SpasParser\ParsedRequest;
+use Hmaus\Spas\Parser\ParsedRequest;
 use React\Http\Request;
 use Symfony\Component\HttpFoundation\HeaderBag;
 
