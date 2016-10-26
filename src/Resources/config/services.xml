@@ -17,7 +17,7 @@
 
         <service class="Hmaus\Branda\Matching\MatchingService" id="hmaus.branda.matching.matching_service"/>
 
-        <service class="Hmaus\Spas\Parser\Apib\ApibParsedRequestsProvider" id="hmaus.spas.parser.apib.apib_parsed_requests_provider"/>
+        <service class="Hmaus\Spas\Parser\Apib" id="hmaus.spas.parser.apib.apib_parsed_requests_provider"/>
 
         <service class="Hmaus\Branda\ApiDescription\ApiBlueprint" id="hmaus.branda.api_description.apib">
             <argument type="service" id="hmaus.branda.drafterphp"/>
